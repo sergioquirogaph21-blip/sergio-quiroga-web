@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #faf8f5;
+  --ink: #16150f;
+  --ink-soft: #4a473e;
+  --sand: #b79a6b;
+  --sand-dark: #8f7748;
+  --line: #e6e1d6;
+  --paper-dim: #f2efe8;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-sand: var(--sand);
+  --color-sand-dark: var(--sand-dark);
+  --color-line: var(--line);
+  --color-paper-dim: var(--paper-dim);
+  --font-serif: var(--font-display);
+  --font-sans: var(--font-body);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--sand);
+  color: var(--ink);
+}
+
+.font-serif {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+/* Scrollbar minimalista */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sand);
+}
+
+/* Masonry con columnas CSS */
+.masonry {
+  column-gap: 1rem;
+}
+.masonry > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out both;
+}

@@ -1,0 +1,107 @@
+// Esquema de base de datos — Sergio Quiroga Fotografía
+// SQLite en desarrollo. Para producción, cambia el provider a "postgresql"
+// y DATABASE_URL a tu instancia de Supabase/Postgres.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Gallery {
+  id            String     @id @default(cuid())
+  slug          String     @unique
+  title         String
+  clientName    String?
+  eventType     String?
+  eventDate     DateTime?
+  driveFolderId String
+  passwordHash  String
+  coverImage    String?
+  isActive      Boolean    @default(true)
+
+  // Pago / comprobante de transferencia
+  // El archivo se guarda directamente en la base (no en disco) para que
+  // funcione en hosting serverless (Vercel, etc.) donde el filesystem no
+  // persiste entre requests.
+  requiresPayment     Boolean   @default(false)
+  downloadsEnabled    Boolean   @default(true)
+  receiptData         Bytes?
+  receiptOriginalName String?
+  receiptMimeType     String?
+  receiptUploadedAt   DateTime?
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  favorites     Favorite[]
+
+  @@index([slug])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  galleryId String
+  gallery   Gallery  @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  fileId    String
+  fileName  String
+  thumbnailLink String?
+  createdAt DateTime @default(now())
+
+  @@unique([galleryId, fileId])
+  @@index([galleryId])
+}
+
+model ContactMessage {
+  id        String    @id @default(cuid())
+  name      String
+  email     String
+  eventType String
+  eventDate DateTime?
+  message   String
+  read      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+/// Fotos del portafolio público, editable desde /admin/portfolio. Los bytes
+/// se guardan en la base (no en disco) para que funcione en hosting
+/// serverless.
+model PortfolioImage {
+  id        String   @id @default(cuid())
+  category  String
+  data      Bytes
+  mimeType  String
+  alt       String
+  width     Int
+  height    Int
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([category])
+}
+
+/// Un grupo de servicios del sitio público (ej. "Bodas", "15 Años"),
+/// editable desde /admin/servicios.
+model ServiceGroup {
+  id          String        @id @default(cuid())
+  category    String
+  description String
+  order       Int           @default(0)
+  tiers       ServiceTier[]
+}
+
+/// Un combo/paquete dentro de un grupo de servicios.
+model ServiceTier {
+  id          String       @id @default(cuid())
+  groupId     String
+  group       ServiceGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name        String
+  price       String
+  description String
+  /// Una característica por línea.
+  features    String
+  featured    Boolean      @default(false)
+  order       Int          @default(0)
+}
